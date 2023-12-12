@@ -7,24 +7,41 @@ let playerHP = 20;
 let rightside = [];
 let leftside = [];
 
+
 function setup() {
   createCanvas(1000, 1000);
+  for(let i =0; i < 2; i++){
+    leftside.push(new Enemy(0, 0, height/2, 0, 20, 2));
+  }
+  for(let i =0; i < 2; i++){
+    rightside.push(new Enemy(0, width, height/2, 1, 20, 2));
+  } 
 }
 
 function draw() {
   background(220);
   drawTerrain();
+  destroyEnemies();
+  if(playerHP ===0){
+    gameOver();
+  }
+  for(let rs of rightside){
+    rs.action();
+  }
+  for(let ls of leftside){
+    ls.action();
+  }
 }
 
 
 function drawTerrain(){ // creates terrain for Player + npcs to exist on
   strokeWeight(2);
-  line(0,height/2, 1000, width/2);
+  rect(0,height/2, 1000, height*0.6);
 }
 
 class Enemy{  // base class for enemy npcs
 
-  constructor(type,x,y,dir,size,speed,alive){
+  constructor(type,x,y,dir,size,speed,){
     this.type = type;
     this.x = x;
     this.y = y;
@@ -42,7 +59,8 @@ class Enemy{  // base class for enemy npcs
       fill(0,255,0);
       circle(this.x,this.y, this.size);
       fill(255,0,0);
-      rect(this.x, this.y-30, this.size, this.y-5); // hp block
+      rect(this.x, this.y-30, this.size, this.y*0.2); // hp block
+      fill(0,0,0);
 
     }
 
@@ -75,13 +93,30 @@ class Enemy{  // base class for enemy npcs
     
   }
 
-
 }
 
-function destroyEnemies(array){ // iterates through array splicing dead enemies
-  for(let i = 0; i < array.length; i++){
+function destroyEnemies(){ // iterates through arrays splicing dead enemies
+  for(let i = 0; i <rightside.length; i++){
     if(Enemy.alive === false){
-      array.splice(i,1);
+      rightside.splice(i,1);
     }
+    
   }
+  for(let i = 0; i <leftside.length; i++){
+    if(Enemy.alive === false){
+      leftside.splice(i,1);
+    }
+    
+  }
+}
+
+function gameOver(){  // kills all enemies, display game over text
+  for(let i = 0; i <rightside.length; i++){
+    rightside.splice(i,1);
+  }
+  for(let i = 0; i <leftside.length; i++){
+    leftside.splice(i,1);
+  }
+  textSize(20);
+  text("GAME OVER", width/2, height/2);
 }
