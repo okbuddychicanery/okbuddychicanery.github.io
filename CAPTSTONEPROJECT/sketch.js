@@ -2,6 +2,9 @@
 // Isaac Munro
 // Due End of Semester 
 
+let startTime;
+let elapsedTime;
+
 
 let playerHP = 20;
 let rightside = [];
@@ -10,19 +13,29 @@ let killcount = 0;
 
 
 function setup() {
+  startTime = millis();
   createCanvas(1000, 1000);
-  for(let i =0; i < 7; i++){
-    leftside.push(new Enemy(0, 0, height/2, 0, 20, 2));
-  }
-  for(let i =0; i < 7; i++){
-    rightside.push(new Enemy(0, width, height/2, 1, 20, 2));
-  } 
+  // for(let i =0; i < 7; i++){
+  //   leftside.push(new Enemy(0, 0, height/2, 0, 20, 2));
+  // }
+  // for(let i =0; i < 7; i++){
+  //   rightside.push(new Enemy(0, width, height/2, 1, 20, 2));
+  // } 
+  document.addEventListener("contextmenu", event => event.preventDefault()); // disable default Rclick
 }
 
 function draw() {
   background(220);
   drawTerrain();
+  
   destroyEnemies();
+  elapsedTime = millis()-startTime;
+  if(elapsedTime > 2000){
+    leftside.push(new Enemy(0, 0, height/2, 0, 20, 2));
+    startTime = millis();
+  }
+  
+  
   if(playerHP ===0){  
     gameOver();
   }
@@ -59,6 +72,7 @@ class Enemy{  // base class for enemy npcs
     
     this.speed = speed;
     this.alive = true;
+    this.pause = false;
   }
 
   // class functions
@@ -97,7 +111,10 @@ class Enemy{  // base class for enemy npcs
   }
 
   action(){
-    this.move();
+    if(this.pause === false){
+      this.move();
+    }
+    
     this.display();
 
     
@@ -127,17 +144,33 @@ function gameOver(){  // kills all enemies, display game over text
   text("GAME OVER", width/2, height/2);
 }
 
-function mousePressed(){  // fix later - add RMB for rightside
-  for(let i = 0; i <rightside.length; i++){
-    if(rightside[i].x < 700){
-      rightside.splice(i,1);
-      killcount+=1;
+function mouseClicked(){  // kills enemy on click if within kill area
+  if(mouseButton ===LEFT){
+    for(let i = 0; i <leftside.length; i++){
+      if(leftside[i].x > 300){ 
+        leftside.splice(i,1);
+        killcount+=1;
+        break;
+      }
+      else{
+        playerHP-=1;
+      }
     }
   }
-  for(let i = 0; i <leftside.length; i++){
-    if(leftside[i].x > 300){
-      leftside.splice(i,1);
-      killcount+=1;
+
+  else{
+    for(let i = 0; i <rightside.length; i++){
+      if(rightside[i].x < 700){
+        rightside.splice(i,1);
+        killcount+=1;
+        break;
+      }
+      else{
+        playerHP-=1;
+      }
     }
   }
+  
+
+  
 }
