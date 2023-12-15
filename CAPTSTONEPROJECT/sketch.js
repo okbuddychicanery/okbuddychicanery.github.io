@@ -31,12 +31,16 @@ function draw() {
   destroyEnemies();
   elapsedTime = millis()-startTime;
   if(elapsedTime > 2000){
+    rightside.push(new Enemy(0, width, height/2, 1, 20, 2));
+    startTime = millis();
+  }
+  if(elapsedTime > 1999){
     leftside.push(new Enemy(0, 0, height/2, 0, 20, 2));
     startTime = millis();
   }
   
   
-  if(playerHP ===0){  
+  if(playerHP ===0 || playerHP < 0){  
     gameOver();
   }
   else{
@@ -144,7 +148,7 @@ function gameOver(){  // kills all enemies, display game over text
   text("GAME OVER", width/2, height/2);
 }
 
-function mouseClicked(){  // kills enemy on click if within kill area
+function mousePressed(){  // kills enemy on click if within kill area
   if(mouseButton ===LEFT){
     for(let i = 0; i <leftside.length; i++){
       if(leftside[i].x > 300){ 
@@ -158,7 +162,7 @@ function mouseClicked(){  // kills enemy on click if within kill area
     }
   }
 
-  else{
+  else if(mouseButton === RIGHT){
     for(let i = 0; i <rightside.length; i++){
       if(rightside[i].x < 700){
         rightside.splice(i,1);
