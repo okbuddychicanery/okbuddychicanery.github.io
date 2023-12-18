@@ -10,6 +10,10 @@ let playerHP = 20;
 let rightside = [];
 let leftside = [];
 let killcount = 0;
+let maxenemy = 30;
+let curenemy = 0;
+let paused = false;
+let enemySpeed = 2;
 
 
 function setup() {
@@ -30,15 +34,20 @@ function draw() {
   
   destroyEnemies();
   elapsedTime = millis()-startTime;
-  if(elapsedTime > 2000){
-    rightside.push(new Enemy(0, width, height/2, 1, 20, 2));
+  if(elapsedTime > 2000 && curenemy < maxenemy  && paused ===false){
+    rightside.push(new Enemy(0, width, height/2, 1, enemySpeed));
     startTime = millis();
+    curenemy+=1;
   }
-  if(elapsedTime > 1999){
-    leftside.push(new Enemy(0, 0, height/2, 0, 20, 2));
+  if(elapsedTime > 1999 && curenemy < maxenemy && paused === false){
+    leftside.push(new Enemy(0, 0, height/2, 0, enemySpeed));
     startTime = millis();
+    curenemy+=1;
   }
-  
+  if(paused ===true){
+    text("GAME PAUSED", width/2, height*0.4);
+  }
+  text(str(enemySpeed), width*0.8, height*0.3);
   
   if(playerHP ===0 || playerHP < 0){  
     gameOver();
@@ -55,6 +64,8 @@ function draw() {
 }
 
 
+
+
 function drawTerrain(){ // creates terrain for Player + npcs to exist on
   strokeWeight(2);
   rect(0,height/2, 1000, height*0.6);
@@ -68,7 +79,7 @@ function drawTerrain(){ // creates terrain for Player + npcs to exist on
 
 class Enemy{  // base class for enemy npcs
 
-  constructor(type,x,y,dir,size,speed,){
+  constructor(type,x,y,dir,speed,){
     this.type = type;
     this.x = x;
     this.y = y;
@@ -149,7 +160,7 @@ function gameOver(){  // kills all enemies, display game over text
 }
 
 function mousePressed(){  // kills enemy on click if within kill area
-  if(mouseButton ===LEFT){
+  if(mouseButton ===LEFT  && paused === false){
     for(let i = 0; i <leftside.length; i++){
       if(leftside[i].x > 300){ 
         leftside.splice(i,1);
@@ -162,7 +173,7 @@ function mousePressed(){  // kills enemy on click if within kill area
     }
   }
 
-  else if(mouseButton === RIGHT){
+  else if(mouseButton === RIGHT && paused ===false){
     for(let i = 0; i <rightside.length; i++){
       if(rightside[i].x < 700){
         rightside.splice(i,1);
@@ -171,10 +182,42 @@ function mousePressed(){  // kills enemy on click if within kill area
       }
       else{
         playerHP-=1;
-      }
+      } 
     }
   }
-  
+}
 
-  
+function pause(){ // pauses game, halting enemy movement
+  for(let i = 0; i < rightside.length; i++){
+    rightside[i].pause = true;
+  }
+  for(let i =0; i < leftside.length; i++){
+    leftside[i].pause = true;
+  }
+  paused = true;
+}
+
+function unpause(){ //unpauses game
+  for(let i = 0; i < rightside.length; i++){
+    rightside[i].pause = false;
+  }
+  for(let i =0; i < leftside.length; i++){
+    leftside[i].pause = false;
+  }
+  paused = false;
+}
+
+function keyPressed(){
+  if(keyCode === 80){ // p
+    pause();
+  }
+  else if(keyCode === 85){  // u
+    unpause();
+  }
+  else if (keyCode === 73 && enemySpeed < 10){ // i
+    enemySpeed+=1;
+  }
+  else if(keyCode ===68 && enemySpeed > 1){
+    enemySpeed-=1;
+  }
 }
