@@ -31,7 +31,7 @@ function setup() {
 function draw() {
   background(220);
   drawTerrain();
-  
+  displayUI();
   destroyEnemies();
   elapsedTime = millis()-startTime;
   if(elapsedTime > 2000 && curenemy < maxenemy  && paused ===false){
@@ -44,10 +44,6 @@ function draw() {
     startTime = millis();
     curenemy+=1;
   }
-  if(paused ===true){
-    text("GAME PAUSED", width/2, height*0.4);
-  }
-  text(str(enemySpeed), width*0.8, height*0.3);
   
   if(playerHP ===0 || playerHP < 0){  
     gameOver();
@@ -63,7 +59,15 @@ function draw() {
   
 }
 
-
+function displayUI(){ // generates text of tracking variables (kills, speed, hp)
+  if(paused ===true){
+    text("GAME PAUSED", width/2, height*0.4);
+  }
+  text("Speed:" + str(enemySpeed), width*0.8, height*0.3);
+  text("HP:" + str(playerHP), width/2, height*0.3);
+  text("Kills:" + str(killcount), width*0.2, height*0.3);
+  text("P and u for pause/unpause, i and d for speed up/down, r to restart", width*0.4, height*0.2);
+}
 
 
 function drawTerrain(){ // creates terrain for Player + npcs to exist on
@@ -73,8 +77,7 @@ function drawTerrain(){ // creates terrain for Player + npcs to exist on
   fill(255);
   rect(300, width/2, 400, 20);  // zone to kill enemies
   fill(0,0,0);
-  text(str(playerHP), width/2, height*0.3);
-  text(str(killcount), width*0.2, height*0.3);
+  
 }
 
 class Enemy{  // base class for enemy npcs
@@ -88,6 +91,13 @@ class Enemy{  // base class for enemy npcs
     this.speed = speed;
     this.alive = true;
     this.pause = false;
+    if(type ===0){
+      this.hp =1;
+    }
+    else if (type===1){
+      this.hp =2;
+    }
+    
   }
 
   // class functions
@@ -102,6 +112,15 @@ class Enemy{  // base class for enemy npcs
       fill(0,0,0);
 
     }
+    else if(this.type ===1){
+      fill(0,255,0);
+      circle(this.x,this.y-10, 15);
+      fill(255,0,0);
+      rect(this.x-10, this.y, 20, 20); // hp block
+      rect(this.x-10, this.y+10, 20,20);
+      fill(0,0,0);
+      
+    }
 
   }
 
@@ -110,16 +129,17 @@ class Enemy{  // base class for enemy npcs
   move(){
     if(this.dir ===0){  // direction moving right
       this.x+= this.speed;
-      if(this.x>490){ // checks if enemy is within 10px of Player, does damage and destroys if yes
-        playerHP -=1;
+      if(this.x>490) { // checks if enemy is within 10px of Player, does damage and destroys if yes
+        playerHP -=this.hp;
         this.alive = false;
       }
+      
 
     }
     else if (this.dir===1){
       this.x -= this.speed;
       if(this.x < 510){
-        playerHP -=1;
+        playerHP -=this.hp;
         this.alive = false;
       }
     }
@@ -150,6 +170,15 @@ function destroyEnemies(){ // iterates through arrays splicing dead enemies
     }
     
   }
+}
+
+function restart(){ //resets game
+  rightside = [];
+  leftside = [];
+  curenemy = 0;
+  playerHP = 20;
+  killcount = 0;
+  enemySpeed = 2;
 }
 
 function gameOver(){  // kills all enemies, display game over text
@@ -217,7 +246,10 @@ function keyPressed(){
   else if (keyCode === 73 && enemySpeed < 10){ // i
     enemySpeed+=1;
   }
-  else if(keyCode ===68 && enemySpeed > 1){
+  else if(keyCode ===68 && enemySpeed > 1){ //d
     enemySpeed-=1;
+  }
+  else if (keyCode ===82){  //r
+    restart();
   }
 }
