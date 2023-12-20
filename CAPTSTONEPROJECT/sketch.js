@@ -35,7 +35,7 @@ function draw() {
   destroyEnemies();
   elapsedTime = millis()-startTime;
   if(elapsedTime > 2000 && curenemy < maxenemy  && paused ===false){
-    rightside.push(new Enemy(0, width, height/2, 1, enemySpeed));
+    rightside.push(new Enemy(1, width, height/2, 1, enemySpeed));
     startTime = millis();
     curenemy+=1;
   }
@@ -67,6 +67,7 @@ function displayUI(){ // generates text of tracking variables (kills, speed, hp)
   text("HP:" + str(playerHP), width/2, height*0.3);
   text("Kills:" + str(killcount), width*0.2, height*0.3);
   text("P and u for pause/unpause, i and d for speed up/down, r to restart", width*0.4, height*0.2);
+  text("Enemies Remaining: " + str(maxenemy-killcount), width/2,height*0.4);
 }
 
 
@@ -91,6 +92,7 @@ class Enemy{  // base class for enemy npcs
     this.speed = speed;
     this.alive = true;
     this.pause = false;
+    this.hp;
     if(type ===0){
       this.hp =1;
     }
@@ -104,7 +106,7 @@ class Enemy{  // base class for enemy npcs
 
   display(){  // shows enemies on screen
     fill(0,0,0);
-    if(this.type===0){  // basic 1hp guy
+    if(this.hp===1){  // basic 1hp guy
       fill(0,255,0);
       circle(this.x,this.y-10, 15);
       fill(255,0,0);
@@ -112,12 +114,12 @@ class Enemy{  // base class for enemy npcs
       fill(0,0,0);
 
     }
-    else if(this.type ===1){
+    else if(this.hp ===2){
       fill(0,255,0);
       circle(this.x,this.y-10, 15);
       fill(255,0,0);
       rect(this.x-10, this.y, 20, 20); // hp block
-      rect(this.x-10, this.y+10, 20,20);
+      rect(this.x-10, this.y+20, 20,20);
       fill(0,0,0);
       
     }
@@ -131,6 +133,7 @@ class Enemy{  // base class for enemy npcs
       this.x+= this.speed;
       if(this.x>490) { // checks if enemy is within 10px of Player, does damage and destroys if yes
         playerHP -=this.hp;
+        killcount+=1;
         this.alive = false;
       }
       
@@ -140,6 +143,7 @@ class Enemy{  // base class for enemy npcs
       this.x -= this.speed;
       if(this.x < 510){
         playerHP -=this.hp;
+        killcount+=1;
         this.alive = false;
       }
     }
@@ -191,26 +195,36 @@ function gameOver(){  // kills all enemies, display game over text
 function mousePressed(){  // kills enemy on click if within kill area
   if(mouseButton ===LEFT  && paused === false){
     for(let i = 0; i <leftside.length; i++){
-      if(leftside[i].x > 300){ 
+      if(leftside[i].x > 300 && leftside[i].hp ===1){ 
         leftside.splice(i,1);
         killcount+=1;
         break;
       }
+      else if(leftside[i].x > 300 && leftside[i].hp > 1){
+        leftside[i].hp-=1;
+        break;
+      }
       else{
         playerHP-=1;
+        break;
       }
     }
   }
 
   else if(mouseButton === RIGHT && paused ===false){
     for(let i = 0; i <rightside.length; i++){
-      if(rightside[i].x < 700){
+      if(rightside[i].x < 700 && rightside[i].hp ===1){
         rightside.splice(i,1);
         killcount+=1;
         break;
       }
+      else if(rightside[i].x < 700 && rightside[i].hp > 1){
+        rightside[i].hp-=1;
+        break;
+      }
       else{
         playerHP-=1;
+        break;
       } 
     }
   }
