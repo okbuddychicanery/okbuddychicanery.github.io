@@ -35,15 +35,15 @@ function draw() {
   destroyEnemies();
   elapsedTime = millis()-startTime;
   if(elapsedTime > 2000 && curenemy < maxenemy  && paused ===false){
-    rightside.push(new Enemy(1, width, height/2, 1, enemySpeed));
+    rightside.push(new Enemy(2, width, height/2, 1, enemySpeed));
     startTime = millis();
     curenemy+=1;
   }
-  if(elapsedTime > 1999 && curenemy < maxenemy && paused === false){
-    leftside.push(new Enemy(0, 0, height/2, 0, enemySpeed));
-    startTime = millis();
-    curenemy+=1;
-  }
+  //if(elapsedTime > 1999 && curenemy < maxenemy && paused === false){
+    //leftside.push(new Enemy(0, 0, height/2, 0, enemySpeed));
+    //startTime = millis();
+    //curenemy+=1;
+  //}
   
   if(playerHP ===0 || playerHP < 0){  
     gameOver();
@@ -61,7 +61,7 @@ function draw() {
 
 function displayUI(){ // generates text of tracking variables (kills, speed, hp)
   if(paused ===true){
-    text("GAME PAUSED", width/2, height*0.4);
+    text("GAME PAUSED", width/2, height*0.35);
   }
   text("Speed:" + str(enemySpeed), width*0.8, height*0.3);
   text("HP:" + str(playerHP), width/2, height*0.3);
@@ -93,11 +93,16 @@ class Enemy{  // base class for enemy npcs
     this.alive = true;
     this.pause = false;
     this.hp;
+
+    this.mustSwitch =false;
     if(type ===0){
       this.hp =1;
     }
     else if (type===1){
       this.hp =2;
+    }
+    else if (type===2){
+      this.hp =3;
     }
     
   }
@@ -122,6 +127,16 @@ class Enemy{  // base class for enemy npcs
       rect(this.x-10, this.y+20, 20,20);
       fill(0,0,0);
       
+    }
+    else if(this.hp ===3){
+      fill(0,255,0);
+      circle(this.x,this.y-10, 15);
+      fill(255,0,0);
+      rect(this.x-10, this.y, 20, 20); // hp block
+      rect(this.x-10, this.y+20, 20,20);
+      fill(0,0,255);
+      rect(this.x-10, this.y+40, 20, 20);
+      fill(0,0,0);
     }
 
   }
@@ -149,13 +164,32 @@ class Enemy{  // base class for enemy npcs
     }
   }
 
+  switch(){
+    if(this.dir ===0){
+      this.x +=500;
+      this.dir =1;
+    }
+    else if(this.dir===1){
+      this.x -= 500;
+      this.dir =0;
+    }
+  }
+
   action(){
     if(this.pause === false){
       this.move();
     }
-    
-    this.display();
+    if(this.type ===2 && this.hp ===2 && this.mustSwitch ===true){
+      this.mustSwitch = false;
+      
+      this.switch();
+    }
 
+
+
+    this.display(); 
+
+    
     
   }
 
@@ -202,6 +236,11 @@ function mousePressed(){  // kills enemy on click if within kill area
       }
       else if(leftside[i].x > 300 && leftside[i].hp > 1){
         leftside[i].hp-=1;
+        if(leftside[i].type ===2 && leftside[i].hp ===2){
+          leftside[i].mustSwitch = true;
+          rightside.push(leftside[i]);
+          leftside.splice(i,1);
+        }
         break;
       }
       else{
@@ -220,6 +259,12 @@ function mousePressed(){  // kills enemy on click if within kill area
       }
       else if(rightside[i].x < 700 && rightside[i].hp > 1){
         rightside[i].hp-=1;
+        if(rightside[i].type===2  && rightside[i].hp ===2){
+          rightside[i].mustSwitch = true;
+          leftside.push(rightside[i]);
+          rightside.splice(i,1);
+        }
+        
         break;
       }
       else{
