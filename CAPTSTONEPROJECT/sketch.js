@@ -185,12 +185,8 @@ class Enemy{  // base class for enemy npcs
       this.switch();
     }
 
-
-
     this.display(); 
 
-    
-    
   }
 
 }
