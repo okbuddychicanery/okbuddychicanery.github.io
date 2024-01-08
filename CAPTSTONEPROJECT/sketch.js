@@ -34,16 +34,17 @@ function draw() {
   displayUI();
   destroyEnemies();
   elapsedTime = millis()-startTime;
+  let choice = Math.floor(random(2));
   if(elapsedTime > 2000 && curenemy < maxenemy  && paused ===false){
-    rightside.push(new Enemy(2, width, height/2, 1, enemySpeed));
+    if(choice ===1){
+      rightside.push(new Enemy(2, width, height/2, 1, enemySpeed));
+    }
+    else{
+      leftside.push(new Enemy(2, 0, height/2, 0, enemySpeed));
+    }
     startTime = millis();
     curenemy+=1;
   }
-  //if(elapsedTime > 1999 && curenemy < maxenemy && paused === false){
-    //leftside.push(new Enemy(0, 0, height/2, 0, enemySpeed));
-    //startTime = millis();
-    //curenemy+=1;
-  //}
   
   if(playerHP ===0 || playerHP < 0){  
     gameOver();
@@ -237,6 +238,7 @@ function mousePressed(){  // kills enemy on click if within kill area
           rightside.push(leftside[i]);
           leftside.splice(i,1);
         }
+
         break;
       }
       else{
