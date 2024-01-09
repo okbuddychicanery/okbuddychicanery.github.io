@@ -5,6 +5,10 @@
 let startTime;
 let elapsedTime;
 
+let animationL;
+
+let enemyLeft = false;
+let enemyRight = false;
 
 let playerHP = 20;
 let rightside = [];
@@ -15,8 +19,13 @@ let curenemy = 0;
 let paused = false;
 let enemySpeed = 2;
 
+function preload(){
+  animationL = loadImage("assets/runningR.gif");
+}
+
 
 function setup() {
+  imageMode(CENTER);
   startTime = millis();
   createCanvas(1000, 1000);
   // for(let i =0; i < 7; i++){
@@ -57,7 +66,28 @@ function draw() {
       ls.action();
     }
   }
-  
+
+  if (enemyRight===true){
+    fill(255,0,0);
+    rect(width/2, height/2, 200, 20);
+    fill(0,0,0);
+  }
+  else if(enemyRight===false){
+    fill(255,255,255);
+    rect(width/2, height/2, 200, 20);
+    fill(0,0,0);
+  }
+
+  if(enemyLeft===true){
+    fill(0,0,255);
+    rect(300,height/2,200,20);
+    fill(0,0,0);
+  }
+  else if(enemyLeft===false){
+    fill(255,255,255);
+    rect(300,height/2,200,20);
+    fill(0,0,0);
+  }
 }
 
 function displayUI(){ // generates text of tracking variables (kills, speed, hp)
@@ -75,7 +105,7 @@ function displayUI(){ // generates text of tracking variables (kills, speed, hp)
 function drawTerrain(){ // creates terrain for Player + npcs to exist on
   strokeWeight(2);
   rect(0,height/2, 1000, height*0.6);
-
+  
   fill(255);
   rect(300, width/2, 400, 20);  // zone to kill enemies
   fill(0,0,0);
@@ -96,6 +126,8 @@ class Enemy{  // base class for enemy npcs
     this.hp;
 
     this.mustSwitch =false;
+
+    this.zone = false;
     if(type ===0){
       this.hp =1;
     }
@@ -114,7 +146,7 @@ class Enemy{  // base class for enemy npcs
     fill(0,0,0);
     if(this.hp===1){  // basic 1hp guy
       fill(0,255,0);
-      circle(this.x,this.y-10, 15);
+      image(animationL,this.x,this.y-10, 45,30);
       fill(255,0,0);
       rect(this.x-10, this.y, 20, 20); // hp block
       fill(0,0,0);
@@ -122,7 +154,7 @@ class Enemy{  // base class for enemy npcs
     }
     else if(this.hp ===2){
       fill(0,255,0);
-      circle(this.x,this.y-10, 15);
+      image(animationL,this.x,this.y-10, 45,30);
       fill(255,0,0);
       rect(this.x-10, this.y, 20, 20); // hp block
       rect(this.x-10, this.y+20, 20,20);
@@ -131,7 +163,7 @@ class Enemy{  // base class for enemy npcs
     }
     else if(this.hp ===3){
       fill(0,255,0);
-      circle(this.x,this.y-10, 15);
+      image(animationL,this.x,this.y-10, 45,30);
       fill(255,0,0);
       rect(this.x-10, this.y, 20, 20); // hp block
       rect(this.x-10, this.y+20, 20,20);
@@ -147,21 +179,31 @@ class Enemy{  // base class for enemy npcs
   move(){
     if(this.dir ===0){  // direction moving right
       this.x+= this.speed;
-      if(this.x>490) { // checks if enemy is within 10px of Player, does damage and destroys if yes
-        playerHP -=this.hp;
-        killcount+=1;
-        this.alive = false;
+      if(this.x> 300){
+        this.zone = true;
+        if(this.x>490) { // checks if enemy is within 10px of Player, does damage and destroys if yes
+          playerHP -=this.hp;
+          killcount+=1;
+          this.alive = false;
+          
+        }
       }
+      
       
 
     }
     else if (this.dir===1){
       this.x -= this.speed;
-      if(this.x < 510){
-        playerHP -=this.hp;
-        killcount+=1;
-        this.alive = false;
+      if(this.x < 700){
+        this.zone = true;
+        if(this.x < 510){
+          playerHP -=this.hp;
+          killcount+=1;
+          this.alive = false;
+          
+        }
       }
+      
     }
   }
 
@@ -197,11 +239,17 @@ function destroyEnemies(){ // iterates through arrays splicing dead enemies
     if(rightside[i].alive === false){
       rightside.splice(i,1);
     }
+    else if(rightside[i].zone ===true && rightside[i].alive ===true){
+      enemyRight =true;
+    }
     
   }
   for(let i = 0; i <leftside.length; i++){
     if(leftside[i].alive === false){
       leftside.splice(i,1);
+    }
+    else if(leftside[i].zone ===true && leftside[i].alive ===true){
+      enemyLeft =true;
     }
     
   }
