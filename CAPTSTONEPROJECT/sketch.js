@@ -6,6 +6,7 @@ let startTime;
 let elapsedTime;
 
 let animationL;
+let backgroundPainting;
 
 let enemyLeft = false;
 let enemyRight = false;
@@ -21,24 +22,21 @@ let enemySpeed = 2;
 
 function preload(){
   animationL = loadImage("assets/runningR.gif");
+  backgroundPainting = loadImage("assets/background.jpg");
 }
 
 
 function setup() {
   imageMode(CENTER);
+  
   startTime = millis();
   createCanvas(1000, 1000);
-  // for(let i =0; i < 7; i++){
-  //   leftside.push(new Enemy(0, 0, height/2, 0, 20, 2));
-  // }
-  // for(let i =0; i < 7; i++){
-  //   rightside.push(new Enemy(0, width, height/2, 1, 20, 2));
-  // } 
   document.addEventListener("contextmenu", event => event.preventDefault()); // disable default Rclick
 }
 
 function draw() {
   background(220);
+  
   drawTerrain();
   displayUI();
   destroyEnemies();
@@ -46,10 +44,10 @@ function draw() {
   let choice = Math.floor(random(2));
   if(elapsedTime > 2000 && curenemy < maxenemy  && paused ===false){
     if(choice ===1){
-      rightside.push(new Enemy(2, width, height/2, 1, enemySpeed));
+      rightside.push(new Enemy(Math.floor(random(3)), width, height/2, 1, enemySpeed));
     }
     else{
-      leftside.push(new Enemy(2, 0, height/2, 0, enemySpeed));
+      leftside.push(new Enemy(Math.floor(random(3)), 0, height/2, 0, enemySpeed));
     }
     startTime = millis();
     curenemy+=1;
@@ -91,6 +89,10 @@ function draw() {
 }
 
 function displayUI(){ // generates text of tracking variables (kills, speed, hp)
+  textSize(20);
+  fill(255);
+  stroke(0);
+  strokeWeight(4);
   if(paused ===true){
     text("GAME PAUSED", width/2, height*0.35);
   }
@@ -103,13 +105,14 @@ function displayUI(){ // generates text of tracking variables (kills, speed, hp)
 
 
 function drawTerrain(){ // creates terrain for Player + npcs to exist on
+  
   strokeWeight(2);
   rect(0,height/2, 1000, height*0.6);
   
   fill(255);
   rect(300, width/2, 400, 20);  // zone to kill enemies
   fill(0,0,0);
-  
+  image(backgroundPainting,0,0,width*2,height);
 }
 
 class Enemy{  // base class for enemy npcs
@@ -186,6 +189,7 @@ class Enemy{  // base class for enemy npcs
           killcount+=1;
           this.alive = false;
           
+          
         }
       }
       
@@ -209,12 +213,16 @@ class Enemy{  // base class for enemy npcs
 
   switch(){
     if(this.dir ===0){
+      enemyLeft =false;
       this.x +=500;
       this.dir =1;
+      
     }
     else if(this.dir===1){
+      enemyRight = false;
       this.x -= 500;
       this.dir =0;
+      
     }
   }
 
@@ -234,7 +242,7 @@ class Enemy{  // base class for enemy npcs
 
 }
 
-function destroyEnemies(){ // iterates through arrays splicing dead enemies
+function destroyEnemies(){ // iterates through arrays splicing dead enemies or activates zoning
   for(let i = 0; i <rightside.length; i++){
     if(rightside[i].alive === false){
       rightside.splice(i,1);
@@ -277,16 +285,19 @@ function mousePressed(){  // kills enemy on click if within kill area
       if(leftside[i].x > 300 && leftside[i].hp ===1){ 
         leftside.splice(i,1);
         killcount+=1;
+        enemyLeft = false;
         break;
+        
       }
       else if(leftside[i].x > 300 && leftside[i].hp > 1){
         leftside[i].hp-=1;
         if(leftside[i].type ===2 && leftside[i].hp ===2){
           leftside[i].mustSwitch = true;
+          leftside[i].zone =false;
           rightside.push(leftside[i]);
           leftside.splice(i,1);
         }
-
+        
         break;
       }
       else{
@@ -301,23 +312,29 @@ function mousePressed(){  // kills enemy on click if within kill area
       if(rightside[i].x < 700 && rightside[i].hp ===1){
         rightside.splice(i,1);
         killcount+=1;
+        enemyRight = false;
         break;
       }
       else if(rightside[i].x < 700 && rightside[i].hp > 1){
         rightside[i].hp-=1;
         if(rightside[i].type===2  && rightside[i].hp ===2){
           rightside[i].mustSwitch = true;
+          rightside[i].zone=false;
           leftside.push(rightside[i]);
           rightside.splice(i,1);
         }
         
+        
         break;
       }
+      
       else{
         playerHP-=1;
         break;
       } 
+      
     }
+    
   }
 }
 
