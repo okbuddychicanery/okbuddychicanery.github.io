@@ -103,7 +103,6 @@ function displayUI(){ // generates text of tracking variables (kills, speed, hp)
   text("Enemies Remaining: " + str(maxenemy-killcount), width/2,height*0.4);
 }
 
-
 function drawTerrain(){ // creates terrain for Player + npcs to exist on
   
   strokeWeight(2);
@@ -117,7 +116,7 @@ function drawTerrain(){ // creates terrain for Player + npcs to exist on
 
 class Enemy{  // base class for enemy npcs
 
-  constructor(type,x,y,dir,speed,){
+  constructor(type,x,y,dir,speed){
     this.type = type;
     this.x = x;
     this.y = y;
@@ -182,7 +181,8 @@ class Enemy{  // base class for enemy npcs
   move(){
     if(this.dir ===0){  // direction moving right
       this.x+= this.speed;
-      if(this.x> 300){
+      if(this.x> 300 && this.x<width/2){
+        
         this.zone = true;
         if(this.x>490) { // checks if enemy is within 10px of Player, does damage and destroys if yes
           playerHP -=this.hp;
@@ -198,7 +198,8 @@ class Enemy{  // base class for enemy npcs
     }
     else if (this.dir===1){
       this.x -= this.speed;
-      if(this.x < 700){
+      if(this.x < 700 && this.x > width/2) {
+        
         this.zone = true;
         if(this.x < 510){
           playerHP -=this.hp;
@@ -242,7 +243,9 @@ class Enemy{  // base class for enemy npcs
 
 }
 
-function destroyEnemies(){ // iterates through arrays splicing dead enemies or activates zoning
+function destroyEnemies(){// iterates through arrays splicing dead enemies or activates zoning
+  enemyRight = false;
+  enemyLeft = false;
   for(let i = 0; i <rightside.length; i++){
     if(rightside[i].alive === false){
       rightside.splice(i,1);
@@ -291,11 +294,13 @@ function mousePressed(){  // kills enemy on click if within kill area
       }
       else if(leftside[i].x > 300 && leftside[i].hp > 1){
         leftside[i].hp-=1;
-        if(leftside[i].type ===2 && leftside[i].hp ===2){
-          leftside[i].mustSwitch = true;
-          leftside[i].zone =false;
-          rightside.push(leftside[i]);
+        if(leftside[i].type ===2 && leftside[i].hp ===2){ // code for an enemy to switch locations
+          // leftside[i].mustSwitch = true;
+          // leftside[i].zone =false;
+          // rightside.push(leftside[i]);
           leftside.splice(i,1);
+          rightside.push(new Enemy(1, 900, height/2, 1, enemySpeed));
+          //rightside[rightside.length-1].zone = false;
         }
         
         break;
@@ -318,10 +323,12 @@ function mousePressed(){  // kills enemy on click if within kill area
       else if(rightside[i].x < 700 && rightside[i].hp > 1){
         rightside[i].hp-=1;
         if(rightside[i].type===2  && rightside[i].hp ===2){
-          rightside[i].mustSwitch = true;
-          rightside[i].zone=false;
-          leftside.push(rightside[i]);
+          // rightside[i].mustSwitch = true;
+          // rightside[i].zone=false;
+          // leftside.push(rightside[i]);
           rightside.splice(i,1);
+          leftside.push(new Enemy(1, 100, height/2, 0, enemySpeed));
+          // leftside[leftside.length-1].zone=false;
         }
         
         
