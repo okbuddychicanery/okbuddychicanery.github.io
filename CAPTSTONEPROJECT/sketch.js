@@ -20,6 +20,9 @@ let curenemy = 0;
 let paused = false;
 let enemySpeed = 2;
 
+let diffInput;
+let diffSet = false;
+
 function preload(){
   animationL = loadImage("assets/runningR.gif");
   backgroundPainting = loadImage("assets/background.jpg");
@@ -36,7 +39,23 @@ function setup() {
 
 function draw() {
   background(220);
-  
+  if(diffInput === "EASY" && diffSet ===false){ // makes the game easier or harder to win by adjusting variables
+    maxenemy = 35;
+    playerHP  = 30;
+    diffSet = true;
+  }
+  else if(diffInput === "NORMAL" && diffSet ===false){
+    maxenemy = 60;
+    playerHP = 15;
+    enemySpeed = 6;
+    diffSet = true;
+  }
+  else if(diffInput ==="HARD" && diffSet === false){
+    maxenemy = 80;
+    playerHP = 10;
+    enemySpeed = 8;
+    diffSet = true;
+  }
   drawTerrain();
   displayUI();
   destroyEnemies();
@@ -88,6 +107,8 @@ function draw() {
   }
 }
 
+
+
 function displayUI(){ // generates text of tracking variables (kills, speed, hp)
   textSize(20);
   fill(255);
@@ -101,6 +122,7 @@ function displayUI(){ // generates text of tracking variables (kills, speed, hp)
   text("Kills:" + str(killcount), width*0.2, height*0.3);
   text("P and u for pause/unpause, i and d for speed up/down, r to restart", width*0.4, height*0.2);
   text("Enemies Remaining: " + str(maxenemy-killcount), width/2,height*0.4);
+  text("Input Difficulty; E for EASY, N for NORMAL, H for HARD", height/3,width/2);
 }
 
 function drawTerrain(){ // creates terrain for Player + npcs to exist on
@@ -380,5 +402,15 @@ function keyPressed(){
   }
   else if (keyCode ===82){  //r
     restart();
+  }
+  
+  else if(keyCode===69){  //e
+    diffInput = "EASY";
+  }
+  else if(keyCode ===78){ //n
+    diffInput = "NORMAL";
+  }
+  else if(keyCode===72){  //h
+    diffInput = "HARD";
   }
 }
